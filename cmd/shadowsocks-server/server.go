@@ -548,6 +548,10 @@ func managerDaemon(conn *net.UDPConn) {
 		case strings.HasPrefix(command, "ping-stop"): // add the stop ping command
 			conn.WriteToUDP(handlePing(), remote)
 			delete(reportconnSet, remote.String())
+		case strings.HasPrefix(command,"stat"):
+			res = reportStat()
+		case strings.HasPrefix(command,"passwd"):
+			res = handlePassword()
 		}
 		if len(res) == 0 {
 			continue
@@ -598,6 +602,22 @@ func handleRemovePort(payload []byte) []byte {
 
 func handlePing() []byte {
 	return []byte("pong")
+}
+
+func handlePassword()[]byte{
+	ret := make(map[string]string)
+	for port := range passwdManager.portListener{
+		l,ok := passwdManager.get(port)
+		if !ok {
+			continue
+		}
+		ret[port] = l.password
+	}
+	bs,err := json.Marshal(ret)
+	if err != nil {
+		return []byte("err")
+	}
+	return bs
 }
 
 // reportStat get the stat:trafficStat and return avery 10 sec as for the protocol

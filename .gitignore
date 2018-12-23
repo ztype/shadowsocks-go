@@ -2,3 +2,7 @@
 script/http
 bin
 .idea
+*.exe
+cmd/shadowsocks-server/shadowsocks-server
+*.json
+
